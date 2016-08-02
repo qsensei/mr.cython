@@ -29,9 +29,13 @@ logger = logging.getLogger('zc.buildout')
 
 def cython_patch(cython_path, develop):
     def hook(*a, **kw):
-        runsetup = runsetup_template.replace('@CYTHON@', repr(cython_path))
-        with easy_install._Monkey(easy_install, runsetup_template=runsetup):
+        tpl = easy_install.runsetup_template
+        easy_install.runsetup_template = runsetup_template.replace(
+            '@CYTHON@', repr(cython_path))
+        try:
             return develop(*a, **kw)
+        finally:
+            easy_install.runsetup_template = tpl
     return hook
 
 
@@ -79,7 +83,7 @@ class Extension(object):
 
     def _patch_buildout(self):
         options = self.buildout['buildout']
-        working_set = easy_install.working_set(['Cython'],
+        working_set = easy_install.working_set(['Cython'], sys.executable,
                                                [options['eggs-directory']])
         cython_req = pkg_resources.Requirement.parse('Cython')
         cython = working_set.find(cython_req).location
