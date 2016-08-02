@@ -1,7 +1,7 @@
 from setuptools import setup
 import sys
 
-version = '1.0'
+version = 'qsensei!1.0'
 
 install_requires = [
     'setuptools',
